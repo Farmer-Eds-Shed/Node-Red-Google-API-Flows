@@ -1,0 +1,108 @@
+[
+    {
+        "id": "bf010e953c18e983",
+        "type": "function",
+        "z": "8768be8507496bd0",
+        "name": "GET Calendars",
+        "func": "var token = global.get('Google_token');\n\nvar date_time = Date.now();\nvar date1 = new Date(date_time)\nvar timestamp = date1.toLocaleDateString('en-UK');\n\nfunction padZero(i) {\n    return i < 10 ? \"0\"+i : i;\n}\nconst dateString = timestamp;\nconst parts = dateString.split(\"/\");\nconst date = new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0]));\nconst newDateString = date.getFullYear()+'-' + (padZero(date.getMonth()+1)) + '-'+padZero(date.getDate());\n\n\nmsg.headers = {};\nmsg.headers['Authorization'] = \"Bearer \"+token;\nmsg.headers['Accept'] = \"application/json\";\nmsg.headers['Cache-Control'] = 'no-cache';\n\nmsg.url = \"https://www.googleapis.com/calendar/v3/calendars/\" + msg.calendar + \"/events?timeMin=\" + newDateString + \"T00:00:00-00:00\";\nmsg.method = \"GET\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 700,
+        "wires": [
+            [
+                "2e235f55fa98da10"
+            ]
+        ]
+    },
+    {
+        "id": "2e235f55fa98da10",
+        "type": "http request",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 670,
+        "y": 700,
+        "wires": [
+            [
+                "52973c9717c9bf0e"
+            ]
+        ]
+    },
+    {
+        "id": "541f6d98a07e3a9a",
+        "type": "inject",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 110,
+        "y": 700,
+        "wires": [
+            [
+                "c2698e3fe585dc50"
+            ]
+        ]
+    },
+    {
+        "id": "52973c9717c9bf0e",
+        "type": "debug",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 850,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "c2698e3fe585dc50",
+        "type": "credentials",
+        "z": "8768be8507496bd0",
+        "name": "Calendar ID",
+        "props": [
+            {
+                "value": "calendar",
+                "type": "msg"
+            }
+        ],
+        "x": 290,
+        "y": 700,
+        "wires": [
+            [
+                "bf010e953c18e983"
+            ]
+        ]
+    },
+    {
+        "id": "8add0a0fbed8fbc0",
+        "type": "comment",
+        "z": "8768be8507496bd0",
+        "name": "Upcoming Calendar events",
+        "info": "",
+        "x": 170,
+        "y": 640,
+        "wires": []
+    }
+]
