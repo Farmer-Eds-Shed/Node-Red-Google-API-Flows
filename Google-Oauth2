@@ -1,0 +1,403 @@
+[
+    {
+        "id": "ae3bb5af57217834",
+        "type": "function",
+        "z": "8768be8507496bd0",
+        "name": "Refresh Token",
+        "func": "var Google_refresh = global.get('Google_refresh');\n\nmsg.payload ={\n            \"grant_type\": \"refresh_token\",\n            \"client_id\": msg.client,\n            \"client_secret\": msg.secret,\n            \"refresh_token\": Google_refresh\n        }\n\nmsg.headers = {};\nmsg.headers['Accept'] = \"application/json\";\nmsg.headers['content-type'] = 'application/json';\nmsg.headers['Cache-Control'] = 'no-cache';\n\nmsg.method = \"POST\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 480,
+        "wires": [
+            [
+                "be36287ea0b3eb53"
+            ]
+        ]
+    },
+    {
+        "id": "be36287ea0b3eb53",
+        "type": "http request",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://oauth2.googleapis.com/token",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 670,
+        "y": 480,
+        "wires": [
+            [
+                "89eff7bbb77b98c4"
+            ]
+        ]
+    },
+    {
+        "id": "aa9bc11b7f1493a2",
+        "type": "credentials",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "props": [
+            {
+                "value": "client",
+                "type": "msg"
+            },
+            {
+                "value": "secret",
+                "type": "msg"
+            }
+        ],
+        "x": 290,
+        "y": 480,
+        "wires": [
+            [
+                "ae3bb5af57217834"
+            ]
+        ]
+    },
+    {
+        "id": "17772d38c9db6b27",
+        "type": "inject",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 110,
+        "y": 480,
+        "wires": [
+            [
+                "aa9bc11b7f1493a2"
+            ]
+        ]
+    },
+    {
+        "id": "dff57b67b56110c2",
+        "type": "debug",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1070,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "89eff7bbb77b98c4",
+        "type": "function",
+        "z": "8768be8507496bd0",
+        "name": "Save OAuth Tokens",
+        "func": "if (msg.payload.access_token) {\n    global.set('Google_token', msg.payload.access_token);\n    //global.set('Google_refresh', msg.payload.refresh_token);\n    Time = new Date()\n    msg.payload = \"Google Access Granted \" + Time;\n    \n} else {\n    msg.payload = \"Google Authorization error.\";\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 480,
+        "wires": [
+            [
+                "dff57b67b56110c2"
+            ]
+        ]
+    },
+    {
+        "id": "8819bb267febb98c",
+        "type": "comment",
+        "z": "8768be8507496bd0",
+        "name": "Reauthenticate Google Calendar API",
+        "info": "",
+        "x": 200,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "e5e0934f4469ae1b",
+        "type": "function",
+        "z": "8768be8507496bd0",
+        "name": "Generate  URL",
+        "func": "msg.url = \"https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/calendar.events&access_type=offline&prompt=consent&include_granted_scopes=true&response_type=code&redirect_uri=\" + msg.redirect_uri +\"&client_id=\" + msg.client_id;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 360,
+        "wires": [
+            [
+                "f8965f568c9c7aa7"
+            ]
+        ]
+    },
+    {
+        "id": "e10d4a325243d7cd",
+        "type": "credentials",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "props": [
+            {
+                "value": "client_id",
+                "type": "msg"
+            },
+            {
+                "value": "redirect_uri",
+                "type": "msg"
+            }
+        ],
+        "x": 290,
+        "y": 360,
+        "wires": [
+            [
+                "e5e0934f4469ae1b"
+            ]
+        ]
+    },
+    {
+        "id": "e2da93bcdb101f3f",
+        "type": "inject",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 110,
+        "y": 360,
+        "wires": [
+            [
+                "e10d4a325243d7cd"
+            ]
+        ]
+    },
+    {
+        "id": "f8965f568c9c7aa7",
+        "type": "exec",
+        "z": "8768be8507496bd0",
+        "command": "start chrome \"",
+        "addpay": "url",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "winHide": false,
+        "oldrc": false,
+        "name": "Open Authentication window",
+        "x": 720,
+        "y": 360,
+        "wires": [
+            [
+                "3871633e65e116ba"
+            ],
+            [
+                "3871633e65e116ba"
+            ],
+            [
+                "3871633e65e116ba"
+            ]
+        ]
+    },
+    {
+        "id": "3871633e65e116ba",
+        "type": "debug",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 970,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "cc666f64bb91c238",
+        "type": "http in",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "url": "/Google/oauth2",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 150,
+        "y": 120,
+        "wires": [
+            [
+                "a446508ea873a530",
+                "ec9420e4f7df38d6"
+            ]
+        ]
+    },
+    {
+        "id": "9127efc1faccdd28",
+        "type": "http response",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 490,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "a446508ea873a530",
+        "type": "template",
+        "z": "8768be8507496bd0",
+        "name": "page",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<html>\n    <head></head>\n    <body>\n        <h1>Google Calendar Access Granted Return to application</h1>\n    </body>\n</html>",
+        "x": 350,
+        "y": 200,
+        "wires": [
+            [
+                "9127efc1faccdd28"
+            ]
+        ]
+    },
+    {
+        "id": "ab20b8dc86127514",
+        "type": "comment",
+        "z": "8768be8507496bd0",
+        "name": "Google Access Code",
+        "info": "",
+        "x": 160,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "4bbcc28955c3b685",
+        "type": "function",
+        "z": "8768be8507496bd0",
+        "name": "Save OAuth Tokens",
+        "func": "if (msg.payload.access_token) {\n    global.set('Google_token', msg.payload.access_token);\n    global.set('Google_refresh', msg.payload.refresh_token);\n    Time = new Date()\n    msg.payload = \"Google Access Granted \" + Time;\n    \n} else {\n    msg.payload = \"Google Authorization error.\";\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 950,
+        "y": 120,
+        "wires": [
+            [
+                "87189e75be5cbe2d"
+            ]
+        ]
+    },
+    {
+        "id": "9318f97001dde25b",
+        "type": "http request",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://oauth2.googleapis.com/token",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 750,
+        "y": 120,
+        "wires": [
+            [
+                "4bbcc28955c3b685"
+            ]
+        ]
+    },
+    {
+        "id": "08ecd8469fb9fe7c",
+        "type": "function",
+        "z": "8768be8507496bd0",
+        "name": "Google Oauth2",
+        "func": "msg.payload ={\n            \"grant_type\": \"authorization_code\",\n            \"client_id\": msg.client,\n            \"client_secret\": msg.secret,\n            \"code\": msg.payload.code,\n            \"redirect_uri\": msg.redirect\n        }\n\nmsg.headers = {};\nmsg.headers['Accept'] = \"application/json\";\nmsg.headers['content-type'] = 'application/json';\nmsg.headers['Cache-Control'] = 'no-cache';\n\nmsg.method = \"POST\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 120,
+        "wires": [
+            [
+                "9318f97001dde25b"
+            ]
+        ]
+    },
+    {
+        "id": "ec9420e4f7df38d6",
+        "type": "credentials",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "props": [
+            {
+                "value": "client",
+                "type": "msg"
+            },
+            {
+                "value": "secret",
+                "type": "msg"
+            },
+            {
+                "value": "redirect",
+                "type": "msg"
+            }
+        ],
+        "x": 370,
+        "y": 120,
+        "wires": [
+            [
+                "08ecd8469fb9fe7c"
+            ]
+        ]
+    },
+    {
+        "id": "87189e75be5cbe2d",
+        "type": "debug",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1150,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "2d9eb0325e66ea5b",
+        "type": "comment",
+        "z": "8768be8507496bd0",
+        "name": "Google Oauth2",
+        "info": "",
+        "x": 140,
+        "y": 300,
+        "wires": []
+    }
+]
