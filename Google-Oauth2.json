@@ -45,10 +45,6 @@
             }
         ],
         "meta": {},
-        "credentials": {
-            "Client_id": "",
-            "Secret": ""
-        },
         "color": "#C0DEED",
         "icon": "font-awesome/fa-lock"
     },
@@ -165,6 +161,20 @@
                 }
             },
             {
+                "name": "Scope",
+                "type": "str",
+                "value": "calendar.events",
+                "ui": {
+                    "icon": "font-awesome/fa-angle-double-right",
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "str"
+                        ]
+                    }
+                }
+            },
+            {
                 "name": "Redirect",
                 "type": "str",
                 "value": "http://127.0.0.1:1880/Google/oauth2",
@@ -179,11 +189,11 @@
                 }
             },
             {
-                "name": "Scope",
+                "name": "Dashboard",
                 "type": "str",
-                "value": "calendar.events",
+                "value": "http://127.0.0.1:1880/ui",
                 "ui": {
-                    "icon": "font-awesome/fa-angle-double-right",
+                    "icon": "font-awesome/fa-globe",
                     "type": "input",
                     "opts": {
                         "types": [
@@ -217,7 +227,7 @@
         "method": "get",
         "upload": false,
         "swaggerDoc": "",
-        "x": 190,
+        "x": 160,
         "y": 80,
         "wires": [
             [
@@ -232,7 +242,7 @@
         "name": "",
         "statusCode": "",
         "headers": {},
-        "x": 750,
+        "x": 770,
         "y": 180,
         "wires": []
     },
@@ -245,7 +255,7 @@
         "fieldType": "msg",
         "format": "handlebars",
         "syntax": "mustache",
-        "template": "<html>\n    <head></head>\n    <body>\n        <h1>Google Calendar Access Granted, close tab and return to application</h1>\n    </body>\n</html>",
+        "template": "<html>\n    <head>\n        <style>\n.button {\n  border: none;\n  color: white;\n  padding: 15px 32px;\n  text-align: center;\n  text-decoration: none;\n  display: inline-block;\n  font-size: 16px;\n  margin: 4px 2px;\n  cursor: pointer;\n}\n\n.button2 {background-color: #008CBA;} /* Blue */\n</style>\n    </head>\n    <body>\n        <h1>Google Calendar Access Granted, click Continue</h1>\n       <a href=\"{{payload}}\" target=\"_parent\"><button class=\"button button2\">Continue</button></a>\n    </body>\n</html>",
         "x": 590,
         "y": 160,
         "wires": [
@@ -259,7 +269,7 @@
         "type": "function",
         "z": "c516bb43d26b1e4d",
         "name": "Save OAuth Tokens",
-        "func": "if (msg.payload.access_token) {\n    global.set('Google_token', msg.payload.access_token);\n    global.set('Google_refresh', msg.payload.refresh_token);\n    Time = new Date()\n    msg.payload = \"Google Access Granted \" + Time;\n    \n} else {\n    msg.payload = \"Google Authorization error.\";\n}\nreturn msg;",
+        "func": "if (msg.payload.access_token) {\n    global.set('Google_token', msg.payload.access_token);\n    global.set('Google_refresh', msg.payload.refresh_token);\n    Time = new Date()\n    msg.result = \"Google Access Granted \" + Time;\n    \n} else {\n    msg.result = \"Google Authorization error.\";\n}\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -331,14 +341,14 @@
         "checkall": "true",
         "repair": false,
         "outputs": 2,
-        "x": 390,
+        "x": 250,
         "y": 180,
         "wires": [
             [
-                "a446508ea873a530"
+                "35a8d42d08ace432"
             ],
             [
-                "2efeedef766408a3"
+                "cb4f3c3b1f8295b1"
             ]
         ]
     },
@@ -351,7 +361,7 @@
         "fieldType": "msg",
         "format": "handlebars",
         "syntax": "mustache",
-        "template": "<html>\n    <head></head>\n    <body>\n        <h1>Google Authorization error</h1>\n    </body>\n</html>",
+        "template": "<html>\n    <head>\n        <style>\n.button {\n  border: none;\n  color: white;\n  padding: 15px 32px;\n  text-align: center;\n  text-decoration: none;\n  display: inline-block;\n  font-size: 16px;\n  margin: 4px 2px;\n  cursor: pointer;\n}\n\n.button2 {background-color: #008CBA;} /* Blue */\n</style>\n    </head>\n    <body>\n        <h1>Google Authorization error</h1>\n        <a href=\"{{payload}}\" target=\"_parent\"><button class=\"button button2\">Return</button></a>\n    </body>\n</html>",
         "x": 590,
         "y": 200,
         "wires": [
@@ -365,7 +375,7 @@
         "type": "function",
         "z": "c516bb43d26b1e4d",
         "name": "Generate  URL",
-        "func": "msg.url = \"https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/\" + env.get(\"Scope\") + \"&access_type=offline&prompt=consent&include_granted_scopes=true&response_type=code&redirect_uri=\" + env.get(\"Redirect\") +\"&client_id=\" + env.get(\"Client_id\");\nreturn msg;",
+        "func": "msg.payload = \"https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/\" + env.get(\"Scope\") + \"&access_type=offline&prompt=consent&include_granted_scopes=true&response_type=code&redirect_uri=\" + env.get(\"Redirect\") +\"&client_id=\" + env.get(\"Client_id\");\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -375,6 +385,60 @@
         "y": 320,
         "wires": [
             []
+        ]
+    },
+    {
+        "id": "cb4f3c3b1f8295b1",
+        "type": "change",
+        "z": "c516bb43d26b1e4d",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "Dashboard",
+                "tot": "env"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 420,
+        "y": 200,
+        "wires": [
+            [
+                "2efeedef766408a3"
+            ]
+        ]
+    },
+    {
+        "id": "35a8d42d08ace432",
+        "type": "change",
+        "z": "c516bb43d26b1e4d",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "Dashboard",
+                "tot": "env"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 420,
+        "y": 160,
+        "wires": [
+            [
+                "a446508ea873a530"
+            ]
         ]
     },
     {
@@ -388,8 +452,8 @@
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "x": 150,
-        "y": 300,
+        "x": 190,
+        "y": 260,
         "wires": [
             [
                 "d20d489364595491"
@@ -409,8 +473,8 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 530,
-        "y": 300,
+        "x": 610,
+        "y": 260,
         "wires": []
     },
     {
@@ -419,29 +483,9 @@
         "z": "8768be8507496bd0",
         "name": "Google Oauth2 Refresh",
         "info": "",
-        "x": 180,
-        "y": 240,
-        "wires": []
-    },
-    {
-        "id": "f8965f568c9c7aa7",
-        "type": "exec",
-        "z": "8768be8507496bd0",
-        "command": "start chrome \"",
-        "addpay": "url",
-        "append": "",
-        "useSpawn": "false",
-        "timer": "",
-        "winHide": false,
-        "oldrc": false,
-        "name": "Open Authentication window",
-        "x": 620,
+        "x": 160,
         "y": 200,
-        "wires": [
-            [],
-            [],
-            []
-        ]
+        "wires": []
     },
     {
         "id": "87189e75be5cbe2d",
@@ -452,11 +496,12 @@
         "tosidebar": true,
         "console": false,
         "tostatus": false,
-        "complete": "false",
+        "complete": "result",
+        "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 570,
-        "y": 80,
+        "x": 610,
+        "y": 60,
         "wires": []
     },
     {
@@ -465,8 +510,8 @@
         "z": "8768be8507496bd0",
         "name": "Google Oauth2 Web Login",
         "info": "",
-        "x": 190,
-        "y": 60,
+        "x": 170,
+        "y": 20,
         "wires": []
     },
     {
@@ -482,21 +527,22 @@
             {
                 "name": "Secret",
                 "type": "cred"
+            },
+            {
+                "name": "Dashboard",
+                "value": "http://127.0.0.1:1880/ui/#!/1",
+                "type": "str"
             }
         ],
-        "credentials": {
-            "Client_id": "__PWRD__",
-            "Secret": "__PWRD__"
-        },
-        "x": 320,
-        "y": 140,
+        "x": 400,
+        "y": 100,
         "wires": [
             [
-                "87189e75be5cbe2d"
+                "87189e75be5cbe2d",
+                "cdbbc7e5ca159e94"
             ],
             [
-                "f8965f568c9c7aa7",
-                "c883b1125b462680"
+                "374187acec4fbadf"
             ]
         ]
     },
@@ -515,11 +561,12 @@
                 "type": "cred"
             }
         ],
-        "x": 320,
-        "y": 300,
+        "x": 400,
+        "y": 260,
         "wires": [
             [
-                "dff57b67b56110c2"
+                "dff57b67b56110c2",
+                "c61cf8b7db717b0b"
             ]
         ]
     },
@@ -534,7 +581,74 @@
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "x": 140,
+        "x": 180,
+        "y": 80,
+        "wires": [
+            [
+                "651766f3f2a40137"
+            ]
+        ]
+    },
+    {
+        "id": "07d2fe2dff75a528",
+        "type": "debug",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 930,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "9fbdc752e7f35ede",
+        "type": "ui_template",
+        "z": "8768be8507496bd0",
+        "group": "d60c193dc192336a",
+        "name": "",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<script>\n(function(scope) {\n    scope.$watch('msg.payload', function(data) {\n        if (data.includes(\"google\")) {\n          window.location.href = data;\n        } \n    });\n})(scope);\n</script>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 760,
+        "y": 120,
+        "wires": [
+            [
+                "07d2fe2dff75a528"
+            ]
+        ]
+    },
+    {
+        "id": "6c60eee658101d50",
+        "type": "ui_button",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "group": "d60c193dc192336a",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Google Oauth2",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 160,
         "y": 140,
         "wires": [
             [
@@ -543,20 +657,119 @@
         ]
     },
     {
-        "id": "c883b1125b462680",
-        "type": "debug",
+        "id": "374187acec4fbadf",
+        "type": "trigger",
+        "z": "8768be8507496bd0",
+        "name": "reset msg",
+        "op1": "",
+        "op2": "",
+        "op1type": "pay",
+        "op2type": "date",
+        "duration": "250",
+        "extend": false,
+        "overrideDelay": false,
+        "units": "ms",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 600,
+        "y": 120,
+        "wires": [
+            [
+                "9fbdc752e7f35ede"
+            ]
+        ]
+    },
+    {
+        "id": "2fc0f97546498662",
+        "type": "ui_button",
         "z": "8768be8507496bd0",
         "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "url",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 560,
-        "y": 140,
+        "group": "d60c193dc192336a",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Oauth2 Refresh",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 160,
+        "y": 320,
+        "wires": [
+            [
+                "d20d489364595491"
+            ]
+        ]
+    },
+    {
+        "id": "c61cf8b7db717b0b",
+        "type": "ui_text",
+        "z": "8768be8507496bd0",
+        "group": "d60c193dc192336a",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 590,
+        "y": 180,
         "wires": []
+    },
+    {
+        "id": "cdbbc7e5ca159e94",
+        "type": "change",
+        "z": "8768be8507496bd0",
+        "name": "",
+        "rules": [
+            {
+                "t": "move",
+                "p": "result",
+                "pt": "msg",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 400,
+        "y": 180,
+        "wires": [
+            [
+                "c61cf8b7db717b0b"
+            ]
+        ]
+    },
+    {
+        "id": "d60c193dc192336a",
+        "type": "ui_group",
+        "name": "Google",
+        "tab": "926d7dc856d17644",
+        "order": 6,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "926d7dc856d17644",
+        "type": "ui_tab",
+        "name": "GoogleAPI",
+        "icon": "fa-google",
+        "disabled": false,
+        "hidden": false
     }
 ]
