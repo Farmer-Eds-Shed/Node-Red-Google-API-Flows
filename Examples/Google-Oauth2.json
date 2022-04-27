@@ -530,7 +530,7 @@
             },
             {
                 "name": "Dashboard",
-                "value": "http://127.0.0.1:1880/ui/#!/1",
+                "value": "http://127.0.0.1:1880/ui",
                 "type": "str"
             }
         ],
