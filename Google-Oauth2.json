@@ -1,0 +1,345 @@
+[
+    {
+        "id": "c516bb43d26b1e4d",
+        "type": "subflow",
+        "name": "Google Oauth2",
+        "info": "",
+        "category": "Google API",
+        "in": [
+            {
+                "x": 480,
+                "y": 320,
+                "wires": [
+                    {
+                        "id": "0e032ab54e41c7f9"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1020,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "4bbcc28955c3b685",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 760,
+                "y": 320,
+                "wires": [
+                    {
+                        "id": "0e032ab54e41c7f9",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "Client_id",
+                "type": "cred",
+                "ui": {
+                    "icon": "font-awesome/fa-lock"
+                }
+            },
+            {
+                "name": "Secret",
+                "type": "cred",
+                "ui": {
+                    "icon": "font-awesome/fa-lock"
+                }
+            },
+            {
+                "name": "Scope",
+                "type": "str",
+                "value": "calendar.events",
+                "ui": {
+                    "icon": "font-awesome/fa-angle-double-right",
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "str"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "Redirect",
+                "type": "str",
+                "value": "http://127.0.0.1:1880/Google/oauth2",
+                "ui": {
+                    "icon": "font-awesome/fa-globe",
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "str"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "Dashboard",
+                "type": "str",
+                "value": "http://127.0.0.1:1880/ui",
+                "ui": {
+                    "icon": "font-awesome/fa-globe",
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "str"
+                        ]
+                    }
+                }
+            }
+        ],
+        "meta": {
+            "module": "google_oauth2",
+            "version": "1.0.0",
+            "author": "farmer.eds.shed@gmail.com",
+            "desc": "Authentication Node for Google API",
+            "keywords": "google api, google oauth2",
+            "license": "GPL-3.0"
+        },
+        "color": "#C0DEED",
+        "icon": "font-awesome/fa-lock"
+    },
+    {
+        "id": "cc666f64bb91c238",
+        "type": "http in",
+        "z": "c516bb43d26b1e4d",
+        "name": "",
+        "url": "/Google/oauth2",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 160,
+        "y": 80,
+        "wires": [
+            [
+                "08ecd8469fb9fe7c"
+            ]
+        ]
+    },
+    {
+        "id": "9127efc1faccdd28",
+        "type": "http response",
+        "z": "c516bb43d26b1e4d",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 770,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "a446508ea873a530",
+        "type": "template",
+        "z": "c516bb43d26b1e4d",
+        "name": "page",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<html>\n    <head>\n        <style>\n.button {\n  border: none;\n  color: white;\n  padding: 15px 32px;\n  text-align: center;\n  text-decoration: none;\n  display: inline-block;\n  font-size: 16px;\n  margin: 4px 2px;\n  cursor: pointer;\n}\n\n.button2 {background-color: #008CBA;} /* Blue */\n</style>\n    </head>\n    <body>\n        <h1>Google Calendar Access Granted, click Continue</h1>\n       <a href=\"{{payload}}\" target=\"_parent\"><button class=\"button button2\">Continue</button></a>\n    </body>\n</html>",
+        "x": 590,
+        "y": 160,
+        "wires": [
+            [
+                "9127efc1faccdd28"
+            ]
+        ]
+    },
+    {
+        "id": "4bbcc28955c3b685",
+        "type": "function",
+        "z": "c516bb43d26b1e4d",
+        "name": "Save OAuth Tokens",
+        "func": "if (msg.payload.access_token) {\n    global.set('Google_token', msg.payload.access_token);\n    global.set('Google_refresh', msg.payload.refresh_token);\n    Time = new Date()\n    msg.result = \"Google Access Granted \" + Time;\n    \n} else {\n    msg.result = \"Google Authorization error.\";\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 810,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9318f97001dde25b",
+        "type": "http request",
+        "z": "c516bb43d26b1e4d",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://oauth2.googleapis.com/token",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 590,
+        "y": 80,
+        "wires": [
+            [
+                "4bbcc28955c3b685",
+                "9a11e2cee582a63b"
+            ]
+        ]
+    },
+    {
+        "id": "08ecd8469fb9fe7c",
+        "type": "function",
+        "z": "c516bb43d26b1e4d",
+        "name": "Google Oauth2",
+        "func": "msg.payload ={\n            \"grant_type\": \"authorization_code\",\n            \"client_id\": env.get(\"Client_id\"),\n            \"client_secret\": env.get(\"Secret\"),\n            \"code\": msg.payload.code,\n            \"redirect_uri\": env.get(\"Redirect\")\n        }\n\nmsg.headers = {};\nmsg.headers['Accept'] = \"application/json\";\nmsg.headers['content-type'] = 'application/json';\nmsg.headers['Cache-Control'] = 'no-cache';\n\nmsg.method = \"POST\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 80,
+        "wires": [
+            [
+                "9318f97001dde25b"
+            ]
+        ]
+    },
+    {
+        "id": "9a11e2cee582a63b",
+        "type": "switch",
+        "z": "c516bb43d26b1e4d",
+        "name": "",
+        "property": "payload.access_token",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 250,
+        "y": 180,
+        "wires": [
+            [
+                "35a8d42d08ace432"
+            ],
+            [
+                "cb4f3c3b1f8295b1"
+            ]
+        ]
+    },
+    {
+        "id": "2efeedef766408a3",
+        "type": "template",
+        "z": "c516bb43d26b1e4d",
+        "name": "page",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<html>\n    <head>\n        <style>\n.button {\n  border: none;\n  color: white;\n  padding: 15px 32px;\n  text-align: center;\n  text-decoration: none;\n  display: inline-block;\n  font-size: 16px;\n  margin: 4px 2px;\n  cursor: pointer;\n}\n\n.button2 {background-color: #008CBA;} /* Blue */\n</style>\n    </head>\n    <body>\n        <h1>Google Authorization error</h1>\n        <a href=\"{{payload}}\" target=\"_parent\"><button class=\"button button2\">Return</button></a>\n    </body>\n</html>",
+        "x": 590,
+        "y": 200,
+        "wires": [
+            [
+                "9127efc1faccdd28"
+            ]
+        ]
+    },
+    {
+        "id": "0e032ab54e41c7f9",
+        "type": "function",
+        "z": "c516bb43d26b1e4d",
+        "name": "Generate  URL",
+        "func": "msg.payload = \"https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/\" + env.get(\"Scope\") + \"&access_type=offline&prompt=consent&include_granted_scopes=true&response_type=code&redirect_uri=\" + env.get(\"Redirect\") +\"&client_id=\" + env.get(\"Client_id\");\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cb4f3c3b1f8295b1",
+        "type": "change",
+        "z": "c516bb43d26b1e4d",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "Dashboard",
+                "tot": "env"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 420,
+        "y": 200,
+        "wires": [
+            [
+                "2efeedef766408a3"
+            ]
+        ]
+    },
+    {
+        "id": "35a8d42d08ace432",
+        "type": "change",
+        "z": "c516bb43d26b1e4d",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "Dashboard",
+                "tot": "env"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 420,
+        "y": 160,
+        "wires": [
+            [
+                "a446508ea873a530"
+            ]
+        ]
+    },
+    {
+        "id": "38f4935ef0a73260",
+        "type": "subflow:c516bb43d26b1e4d",
+        "z": "c47e314473c912ae",
+        "name": "",
+        "x": 240,
+        "y": 120,
+        "wires": [
+            [],
+            []
+        ]
+    }
+]
