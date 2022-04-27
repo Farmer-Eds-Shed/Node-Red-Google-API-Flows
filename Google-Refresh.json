@@ -1,0 +1,120 @@
+[
+    {
+        "id": "1b40ef83a0652010",
+        "type": "subflow",
+        "name": "Oauth2 Refresh",
+        "info": "",
+        "category": "Google API",
+        "in": [
+            {
+                "x": 240,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "ae3bb5af57217834"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 940,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "89eff7bbb77b98c4",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "Client_id",
+                "type": "cred",
+                "ui": {
+                    "icon": "font-awesome/fa-lock"
+                }
+            },
+            {
+                "name": "Secret",
+                "type": "cred",
+                "ui": {
+                    "icon": "font-awesome/fa-lock"
+                }
+            }
+        ],
+        "meta": {},
+        "color": "#C0DEED",
+        "icon": "font-awesome/fa-lock"
+    },
+    {
+        "id": "ae3bb5af57217834",
+        "type": "function",
+        "z": "1b40ef83a0652010",
+        "name": "Refresh Token",
+        "func": "var Google_refresh = global.get('Google_refresh');\n\nmsg.payload ={\n            \"grant_type\": \"refresh_token\",\n            \"client_id\": env.get(\"Client_id\"),\n            \"client_secret\": env.get(\"Secret\"),\n            \"refresh_token\": Google_refresh\n        }\n\nmsg.headers = {};\nmsg.headers['Accept'] = \"application/json\";\nmsg.headers['content-type'] = 'application/json';\nmsg.headers['Cache-Control'] = 'no-cache';\n\nmsg.method = \"POST\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 80,
+        "wires": [
+            [
+                "be36287ea0b3eb53"
+            ]
+        ]
+    },
+    {
+        "id": "be36287ea0b3eb53",
+        "type": "http request",
+        "z": "1b40ef83a0652010",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://oauth2.googleapis.com/token",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 570,
+        "y": 80,
+        "wires": [
+            [
+                "89eff7bbb77b98c4"
+            ]
+        ]
+    },
+    {
+        "id": "89eff7bbb77b98c4",
+        "type": "function",
+        "z": "1b40ef83a0652010",
+        "name": "Save OAuth Tokens",
+        "func": "if (msg.payload.access_token) {\n    global.set('Google_token', msg.payload.access_token);\n    //global.set('Google_refresh', msg.payload.refresh_token);\n    Time = new Date()\n    msg.payload = \"Google Access Granted \" + Time;\n    \n} else {\n    msg.payload = \"Google Authorization error.\";\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 770,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5f43723c3facbe59",
+        "type": "subflow:1b40ef83a0652010",
+        "z": "c47e314473c912ae",
+        "name": "",
+        "x": 240,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    }
+]
