@@ -125,7 +125,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 650,
+        "x": 670,
         "y": 720,
         "wires": [
             [
@@ -198,7 +198,7 @@
         "z": "03ce168ba8e7e926",
         "group": "dce9e7a2.d20c78",
         "name": "HEAD scripts and css",
-        "order": 2,
+        "order": 4,
         "width": 0,
         "height": 0,
         "format": "\n<script type=\"text/javascript\" src=\"https://cdn.jsdelivr.net/momentjs/latest/moment.min.js\"></script>\n<script type=\"text/javascript\" src=\"https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js\"></script>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css\" />",
@@ -214,34 +214,11 @@
         ]
     },
     {
-        "id": "c38c270948239c48",
-        "type": "ui_template",
-        "z": "03ce168ba8e7e926",
-        "group": "dce9e7a2.d20c78",
-        "name": "",
-        "order": 3,
-        "width": "0",
-        "height": "0",
-        "format": "\n<input type=\"text\" id=\"daterange1\" />\n\n<script>\n    \n    const scope = this.scope;\n    $('#daterange1').daterangepicker({\n        timePicker: false,\n        singleDatePicker: true,\n        locale: {\n            format: 'YYYY-MM-DD'\n        }\n    });\n    $('#daterange1').on('apply.daterangepicker', function(ev, picker) {\n        let payload = {};\n        var startDate = picker.startDate.format('YYYY-MM-DD');\n        var startEpoch = new Date(startDate);\n        payload.startDate = startEpoch.getTime() /1000;\n        scope.send({payload:payload});\n    });\n\n</script>\n",
-        "storeOutMessages": true,
-        "fwdInMessages": true,
-        "resendOnRefresh": true,
-        "templateScope": "local",
-        "className": "",
-        "x": 280,
-        "y": 140,
-        "wires": [
-            [
-                "9218b91adeb073a9"
-            ]
-        ]
-    },
-    {
         "id": "9218b91adeb073a9",
         "type": "function",
         "z": "03ce168ba8e7e926",
         "name": "Save selection",
-        "func": "flow.set('log_creation_date', msg.payload);\nreturn msg;",
+        "func": "flow.set('log_creation_date', msg.payload / 1000);\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -258,7 +235,7 @@
         "type": "function",
         "z": "03ce168ba8e7e926",
         "name": "API",
-        "func": "var token = global.get('token');\nvar api = flow.get('log_type');\nvar creation_date = flow.get('log_creation_date.startDate');\n\nmsg.headers = {};\nmsg.headers['Authorization'] = \"Bearer \"+token;\nmsg.headers['Accept'] = \"application/vnd.api+json\";\nmsg.headers['content-type'] = 'application/vnd.api+json';\n\nmsg.url = global.get('farmOSurl').concat('/api/' + api + '?filter[recent][condition][path]=created&filter[recent][condition][operator]=%3E&filter[recent][condition][value]=') + creation_date +('&filter[status]=pending');\nmsg.method = \"GET\";\n\nreturn msg;",
+        "func": "var token = global.get('token');\nvar api = flow.get('log_type');\nvar creation_date = flow.get('log_creation_date');\n\nmsg.headers = {};\nmsg.headers['Authorization'] = \"Bearer \"+token;\nmsg.headers['Accept'] = \"application/vnd.api+json\";\nmsg.headers['content-type'] = 'application/vnd.api+json';\n\nmsg.url = global.get('farmOSurl').concat('/api/' + api + '?filter[recent][condition][path]=created&filter[recent][condition][operator]=%3E&filter[recent][condition][value]=') + creation_date +('&filter[status]=pending');\nmsg.method = \"GET\";\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -386,11 +363,11 @@
         "z": "03ce168ba8e7e926",
         "name": "",
         "group": "dce9e7a2.d20c78",
-        "order": 4,
+        "order": 3,
         "width": 0,
         "height": 0,
         "passthru": false,
-        "label": "Search by Creation Timestamp",
+        "label": "Search logs created after",
         "tooltip": "",
         "color": "",
         "bgcolor": "",
@@ -400,7 +377,7 @@
         "payloadType": "str",
         "topic": "topic",
         "topicType": "msg",
-        "x": 130,
+        "x": 110,
         "y": 380,
         "wires": [
             [
@@ -506,9 +483,9 @@
         "z": "03ce168ba8e7e926",
         "group": "dce9e7a2.d20c78",
         "name": "Imported",
-        "order": 3,
-        "width": "6",
-        "height": "4",
+        "order": 5,
+        "width": 9,
+        "height": 4,
         "columns": [
             {
                 "field": "name",
@@ -563,7 +540,7 @@
         "type": "ui_text",
         "z": "03ce168ba8e7e926",
         "group": "dce9e7a2.d20c78",
-        "order": 5,
+        "order": 6,
         "width": 0,
         "height": 0,
         "name": "",
@@ -765,6 +742,28 @@
         "x": 1190,
         "y": 200,
         "wires": []
+    },
+    {
+        "id": "146c3fcb8b15d67e",
+        "type": "ui_date_picker",
+        "z": "03ce168ba8e7e926",
+        "name": "",
+        "label": "date",
+        "group": "dce9e7a2.d20c78",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "x": 290,
+        "y": 140,
+        "wires": [
+            [
+                "9218b91adeb073a9"
+            ]
+        ]
     },
     {
         "id": "dce9e7a2.d20c78",
