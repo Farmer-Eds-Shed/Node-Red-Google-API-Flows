@@ -1,0 +1,788 @@
+[
+    {
+        "id": "1b40ef83a0652010",
+        "type": "subflow",
+        "name": "Oauth2 Refresh",
+        "info": "",
+        "category": "Google API",
+        "in": [
+            {
+                "x": 240,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "ae3bb5af57217834"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 940,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "89eff7bbb77b98c4",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "Client_id",
+                "type": "cred",
+                "ui": {
+                    "icon": "font-awesome/fa-lock"
+                }
+            },
+            {
+                "name": "Secret",
+                "type": "cred",
+                "ui": {
+                    "icon": "font-awesome/fa-lock"
+                }
+            }
+        ],
+        "meta": {},
+        "color": "#C0DEED",
+        "icon": "font-awesome/fa-lock"
+    },
+    {
+        "id": "ae3bb5af57217834",
+        "type": "function",
+        "z": "1b40ef83a0652010",
+        "name": "Refresh Token",
+        "func": "var Google_refresh = global.get('Google_refresh');\n\nmsg.payload ={\n            \"grant_type\": \"refresh_token\",\n            \"client_id\": env.get(\"Client_id\"),\n            \"client_secret\": env.get(\"Secret\"),\n            \"refresh_token\": Google_refresh\n        }\n\nmsg.headers = {};\nmsg.headers['Accept'] = \"application/json\";\nmsg.headers['content-type'] = 'application/json';\nmsg.headers['Cache-Control'] = 'no-cache';\n\nmsg.method = \"POST\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 80,
+        "wires": [
+            [
+                "be36287ea0b3eb53"
+            ]
+        ]
+    },
+    {
+        "id": "be36287ea0b3eb53",
+        "type": "http request",
+        "z": "1b40ef83a0652010",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://oauth2.googleapis.com/token",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 570,
+        "y": 80,
+        "wires": [
+            [
+                "89eff7bbb77b98c4"
+            ]
+        ]
+    },
+    {
+        "id": "89eff7bbb77b98c4",
+        "type": "function",
+        "z": "1b40ef83a0652010",
+        "name": "Save OAuth Tokens",
+        "func": "if (msg.payload.access_token) {\n    global.set('Google_token', msg.payload.access_token);\n    //global.set('Google_refresh', msg.payload.refresh_token);\n    Time = new Date()\n    msg.payload = \"Google Access Granted \" + Time;\n    \n} else {\n    msg.payload = \"Google Authorization error.\";\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 770,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "03ce168ba8e7e926",
+        "type": "tab",
+        "label": "Log2Calendar",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "05c03b2077ab988b",
+        "type": "function",
+        "z": "03ce168ba8e7e926",
+        "name": "POST Calendars",
+        "func": "var token = global.get('Google_token');\nvar name = msg.payload.name\nvar notes = msg.payload.notes\nvar timestamp = msg.payload.timestamp\nvar date = timestamp.substring(0, 10);\n\nmsg.headers = {};\nmsg.headers['Authorization'] = \"Bearer \"+token;\nmsg.headers['Accept'] = \"application/json\";\nmsg.headers['Cache-Control'] = 'no-cache';\n\nmsg.url = \"https://www.googleapis.com/calendar/v3/calendars/\" + msg.calendar + \"/events\";\nmsg.method = \"POST\";\n\nmsg.payload = {\n  \"end\": {\n    \"date\": date\n  },\n  \"start\": {\n    \"date\": date\n  },\n  \"description\": notes,\n  \"summary\": name\n};\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 720,
+        "wires": [
+            [
+                "f6e125f66b856ce7"
+            ]
+        ]
+    },
+    {
+        "id": "f6e125f66b856ce7",
+        "type": "http request",
+        "z": "03ce168ba8e7e926",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 870,
+        "y": 720,
+        "wires": [
+            [
+                "ee884d093860e958",
+                "32397c0d1fb22903"
+            ]
+        ]
+    },
+    {
+        "id": "ee884d093860e958",
+        "type": "debug",
+        "z": "03ce168ba8e7e926",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 1070,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "ff355d077cdaa495",
+        "type": "credentials",
+        "z": "03ce168ba8e7e926",
+        "name": "Calendar ID",
+        "props": [
+            {
+                "value": "calendar",
+                "type": "msg"
+            }
+        ],
+        "x": 470,
+        "y": 720,
+        "wires": [
+            [
+                "05c03b2077ab988b"
+            ]
+        ]
+    },
+    {
+        "id": "d3a08df34c80da26",
+        "type": "ui_template",
+        "z": "03ce168ba8e7e926",
+        "group": "dce9e7a2.d20c78",
+        "name": "HEAD scripts and css",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "format": "\n<script type=\"text/javascript\" src=\"https://cdn.jsdelivr.net/momentjs/latest/moment.min.js\"></script>\n<script type=\"text/javascript\" src=\"https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js\"></script>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css\" />",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "global",
+        "className": "",
+        "x": 320,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c38c270948239c48",
+        "type": "ui_template",
+        "z": "03ce168ba8e7e926",
+        "group": "dce9e7a2.d20c78",
+        "name": "",
+        "order": 3,
+        "width": "0",
+        "height": "0",
+        "format": "\n<input type=\"text\" id=\"daterange1\" />\n\n<script>\n    \n    const scope = this.scope;\n    $('#daterange1').daterangepicker({\n        timePicker: false,\n        singleDatePicker: true,\n        locale: {\n            format: 'YYYY-MM-DD'\n        }\n    });\n    $('#daterange1').on('apply.daterangepicker', function(ev, picker) {\n        let payload = {};\n        var startDate = picker.startDate.format('YYYY-MM-DD');\n        var startEpoch = new Date(startDate);\n        payload.startDate = startEpoch.getTime() /1000;\n        scope.send({payload:payload});\n    });\n\n</script>\n",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 280,
+        "y": 140,
+        "wires": [
+            [
+                "9218b91adeb073a9"
+            ]
+        ]
+    },
+    {
+        "id": "9218b91adeb073a9",
+        "type": "function",
+        "z": "03ce168ba8e7e926",
+        "name": "Save selection",
+        "func": "flow.set('log_creation_date', msg.payload);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a058b1fdb2e15daf",
+        "type": "function",
+        "z": "03ce168ba8e7e926",
+        "name": "API",
+        "func": "var token = global.get('token');\nvar api = flow.get('log_type');\nvar creation_date = flow.get('log_creation_date.startDate');\n\nmsg.headers = {};\nmsg.headers['Authorization'] = \"Bearer \"+token;\nmsg.headers['Accept'] = \"application/vnd.api+json\";\nmsg.headers['content-type'] = 'application/vnd.api+json';\n\nmsg.url = global.get('farmOSurl').concat('/api/' + api + '?filter[recent][condition][path]=created&filter[recent][condition][operator]=%3E&filter[recent][condition][value]=') + creation_date +('&filter[status]=pending');\nmsg.method = \"GET\";\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 460,
+        "wires": [
+            [
+                "9b39f04c24876c3b"
+            ]
+        ]
+    },
+    {
+        "id": "9b39f04c24876c3b",
+        "type": "http request",
+        "z": "03ce168ba8e7e926",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "senderr": false,
+        "x": 790,
+        "y": 460,
+        "wires": [
+            [
+                "1f7e29e6c6375ad1"
+            ]
+        ]
+    },
+    {
+        "id": "1f7e29e6c6375ad1",
+        "type": "function",
+        "z": "03ce168ba8e7e926",
+        "name": "Check for next",
+        "func": "var token = global.get('token');\nmsg.headers = {\n    Authorization: \"Bearer \"+token\n}\n\n\nif (msg.payload.links.hasOwnProperty(\"next\")){\n    msg.url = msg.payload.links.next.href;\n    msg.method = \"GET\";\n}else{\n    msg.url = null;\n    msg.complete = \"complete\";\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 980,
+        "y": 460,
+        "wires": [
+            [
+                "774cb0fc53bcd9e5",
+                "712bd2be3c4196fb"
+            ]
+        ]
+    },
+    {
+        "id": "774cb0fc53bcd9e5",
+        "type": "switch",
+        "z": "03ce168ba8e7e926",
+        "name": "",
+        "property": "url",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 850,
+        "y": 400,
+        "wires": [
+            [
+                "9b39f04c24876c3b"
+            ]
+        ]
+    },
+    {
+        "id": "3c88bf3160f94470",
+        "type": "ui_dropdown",
+        "z": "03ce168ba8e7e926",
+        "name": "",
+        "label": "",
+        "tooltip": "",
+        "place": "Select option",
+        "group": "dce9e7a2.d20c78",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "multiple": false,
+        "options": [
+            {
+                "label": "Observation",
+                "value": "log/observation",
+                "type": "str"
+            },
+            {
+                "label": "Activity",
+                "value": "log/activity",
+                "type": "str"
+            },
+            {
+                "label": "Input",
+                "value": "log/input",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "x": 280,
+        "y": 200,
+        "wires": [
+            [
+                "a50775a6d1a6dc36"
+            ]
+        ]
+    },
+    {
+        "id": "a26fce627121bc7e",
+        "type": "ui_button",
+        "z": "03ce168ba8e7e926",
+        "name": "",
+        "group": "dce9e7a2.d20c78",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Search by Creation Timestamp",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "go",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 130,
+        "y": 380,
+        "wires": [
+            [
+                "4b8a6bfd40e45fca",
+                "17d992e9d60eb15f"
+            ]
+        ]
+    },
+    {
+        "id": "a50775a6d1a6dc36",
+        "type": "function",
+        "z": "03ce168ba8e7e926",
+        "name": "Save selection",
+        "func": "flow.set('log_type', msg.payload);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "712bd2be3c4196fb",
+        "type": "function",
+        "z": "03ce168ba8e7e926",
+        "name": "Split payloads",
+        "func": "if (msg.payload.data.length !=0){\nmsg.payload.data.forEach(data => {\n    msg.payload.name = data.attributes.name;\n    msg.payload.timestamp = data.attributes.timestamp;\n    msg.payload.notes = data.attributes.notes;\n    node.send(msg)\n    })\n} else {\nmsg.payload = []\nnode.send(msg)\n}\nreturn;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1200,
+        "y": 460,
+        "wires": [
+            [
+                "75cc4835ec234b3a"
+            ]
+        ]
+    },
+    {
+        "id": "edfc8131ec0d309e",
+        "type": "debug",
+        "z": "03ce168ba8e7e926",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 970,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "75cc4835ec234b3a",
+        "type": "function",
+        "z": "03ce168ba8e7e926",
+        "name": "Logs",
+        "func": "var name;\nvar array = flow.get('logs_table') || [];\n\nif (msg.payload.name != null){\n    name = msg.payload.name;\n    timestamp = msg.payload.timestamp\n    notes = msg.payload.notes\n    array.push({name:name,timestamp:timestamp,notes:notes});\n    flow.set('logs_table',array); \n    }else{\n    array=[];\n    }\n\n  \n\nmsg.payload = array;\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 540,
+        "wires": [
+            [
+                "23a9055db7a963b6"
+            ]
+        ]
+    },
+    {
+        "id": "0981f0d7b0fa3045",
+        "type": "function",
+        "z": "03ce168ba8e7e926",
+        "name": "Clear Selected",
+        "func": "var i = msg.payload.id\nvar logs = flow.get(\"logs_table\");\n\ndelete logs[i]\nlogs = logs.filter(function( element ) {\n   return element !== undefined;\n});\nflow.set(\"logs_table\",logs);\nmsg.payload = logs\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 600,
+        "wires": [
+            [
+                "23a9055db7a963b6"
+            ]
+        ]
+    },
+    {
+        "id": "23a9055db7a963b6",
+        "type": "ui_table",
+        "z": "03ce168ba8e7e926",
+        "group": "dce9e7a2.d20c78",
+        "name": "Imported",
+        "order": 3,
+        "width": "6",
+        "height": "4",
+        "columns": [
+            {
+                "field": "name",
+                "title": "Name",
+                "width": "",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            }
+        ],
+        "outputs": 1,
+        "cts": true,
+        "x": 720,
+        "y": 540,
+        "wires": [
+            [
+                "0981f0d7b0fa3045",
+                "edfc8131ec0d309e",
+                "ff355d077cdaa495"
+            ]
+        ]
+    },
+    {
+        "id": "3445f50aaab76103",
+        "type": "change",
+        "z": "03ce168ba8e7e926",
+        "name": "",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "logs_table",
+                "pt": "flow"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 440,
+        "y": 460,
+        "wires": [
+            [
+                "a058b1fdb2e15daf"
+            ]
+        ]
+    },
+    {
+        "id": "63709546abefe81d",
+        "type": "ui_text",
+        "z": "03ce168ba8e7e926",
+        "group": "dce9e7a2.d20c78",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Result:",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "x": 480,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "32397c0d1fb22903",
+        "type": "function",
+        "z": "03ce168ba8e7e926",
+        "name": "Result",
+        "func": "var result = (\"Log: \") + msg.payload.summary + (\", sent to calendar\");\nmsg.payload = result;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 820,
+        "wires": [
+            [
+                "63709546abefe81d"
+            ]
+        ]
+    },
+    {
+        "id": "4b8a6bfd40e45fca",
+        "type": "function",
+        "z": "03ce168ba8e7e926",
+        "name": "Clear Result",
+        "func": "var result = (\"\");\nmsg.payload = result;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 860,
+        "wires": [
+            [
+                "63709546abefe81d"
+            ]
+        ]
+    },
+    {
+        "id": "234227afffee9751",
+        "type": "subflow:1b40ef83a0652010",
+        "z": "03ce168ba8e7e926",
+        "name": "",
+        "env": [
+            {
+                "name": "Client_id",
+                "type": "cred"
+            },
+            {
+                "name": "Secret",
+                "type": "cred"
+            }
+        ],
+        "x": 1180,
+        "y": 280,
+        "wires": [
+            [
+                "8ed90a92ab055bd1",
+                "3445f50aaab76103"
+            ]
+        ]
+    },
+    {
+        "id": "ae346140b25e3bd7",
+        "type": "credentials",
+        "z": "03ce168ba8e7e926",
+        "name": "farmOS Credentials",
+        "props": [
+            {
+                "value": "payload.url",
+                "type": "msg"
+            },
+            {
+                "value": "payload.username",
+                "type": "msg"
+            },
+            {
+                "value": "payload.password",
+                "type": "msg"
+            },
+            {
+                "value": "payload.client_id",
+                "type": "msg"
+            },
+            {
+                "value": "client_secret",
+                "type": "msg"
+            },
+            {
+                "value": "payload.scope",
+                "type": "msg"
+            }
+        ],
+        "x": 750,
+        "y": 280,
+        "wires": [
+            [
+                "0353f3f31ced49b8"
+            ]
+        ]
+    },
+    {
+        "id": "0353f3f31ced49b8",
+        "type": "sf:895a366cbeeeb85e",
+        "z": "03ce168ba8e7e926",
+        "name": "",
+        "x": 960,
+        "y": 280,
+        "wires": [
+            [
+                "234227afffee9751",
+                "4d39bb49074d6520"
+            ]
+        ]
+    },
+    {
+        "id": "4d39bb49074d6520",
+        "type": "debug",
+        "z": "03ce168ba8e7e926",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 950,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "3bc296578609ee7c",
+        "type": "inject",
+        "z": "03ce168ba8e7e926",
+        "name": "",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 670,
+        "y": 140,
+        "wires": [
+            [
+                "ae346140b25e3bd7"
+            ]
+        ]
+    },
+    {
+        "id": "17d992e9d60eb15f",
+        "type": "change",
+        "z": "03ce168ba8e7e926",
+        "name": "",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "payload",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 430,
+        "y": 280,
+        "wires": [
+            [
+                "ae346140b25e3bd7"
+            ]
+        ]
+    },
+    {
+        "id": "8ed90a92ab055bd1",
+        "type": "debug",
+        "z": "03ce168ba8e7e926",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1190,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "dce9e7a2.d20c78",
+        "type": "ui_group",
+        "name": "Logs2Calendar",
+        "tab": "5132060d.4cde48",
+        "order": 1,
+        "disp": true,
+        "width": "9",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "5132060d.4cde48",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
