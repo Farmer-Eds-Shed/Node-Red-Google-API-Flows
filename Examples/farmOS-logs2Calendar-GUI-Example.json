@@ -193,27 +193,6 @@
         ]
     },
     {
-        "id": "d3a08df34c80da26",
-        "type": "ui_template",
-        "z": "03ce168ba8e7e926",
-        "group": "dce9e7a2.d20c78",
-        "name": "HEAD scripts and css",
-        "order": 4,
-        "width": 0,
-        "height": 0,
-        "format": "\n<script type=\"text/javascript\" src=\"https://cdn.jsdelivr.net/momentjs/latest/moment.min.js\"></script>\n<script type=\"text/javascript\" src=\"https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js\"></script>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css\" />",
-        "storeOutMessages": true,
-        "fwdInMessages": true,
-        "resendOnRefresh": true,
-        "templateScope": "global",
-        "className": "",
-        "x": 320,
-        "y": 80,
-        "wires": [
-            []
-        ]
-    },
-    {
         "id": "9218b91adeb073a9",
         "type": "function",
         "z": "03ce168ba8e7e926",
@@ -367,7 +346,7 @@
         "width": 0,
         "height": 0,
         "passthru": false,
-        "label": "Search logs created after",
+        "label": "Search logs created after date",
         "tooltip": "",
         "color": "",
         "bgcolor": "",
@@ -377,7 +356,7 @@
         "payloadType": "str",
         "topic": "topic",
         "topicType": "msg",
-        "x": 110,
+        "x": 130,
         "y": 380,
         "wires": [
             [
@@ -682,25 +661,6 @@
         "x": 950,
         "y": 200,
         "wires": []
-    },
-    {
-        "id": "3bc296578609ee7c",
-        "type": "inject",
-        "z": "03ce168ba8e7e926",
-        "name": "",
-        "props": [],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "x": 670,
-        "y": 140,
-        "wires": [
-            [
-                "ae346140b25e3bd7"
-            ]
-        ]
     },
     {
         "id": "17d992e9d60eb15f",
